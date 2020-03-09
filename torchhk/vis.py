@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torchvision.utils
 
-def weightshow(model, ncols=2, figsize=(5,5),
+def weight_show(model, ncols=2, figsize=(5,5),
                 xlabel='$q_{ij}$', ylabel='Counts', save_path=None) :
     
     if not isinstance(model, nn.Module) :
@@ -46,7 +46,7 @@ def weightshow(model, ncols=2, figsize=(5,5),
     plt.show()
     plt.clf()
     
-def imshow(tensor, title="", figsize=(5,15), ncols=8, normalize=False, range=None,
+def im_show(tensor, title="", figsize=(5,15), ncols=8, normalize=False, range=None,
            scale_each=False, padding=2, pad_value=0, save_path=None) :
     
     # tensor (Tensor or list) – 4D mini-batch Tensor of shape (B x C x H x W) or a list of images all of the same size.
@@ -69,4 +69,3 @@ def imshow(tensor, title="", figsize=(5,15), ncols=8, normalize=False, range=Non
         plt.savefig(save_path)
     
     plt.clf()
-    

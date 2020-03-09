@@ -134,9 +134,12 @@ class RecordManager(object) :
                 
         print("-"*self._text_len)
         
-    def plot(self, x_key, y_keys, title="", xlabel="", ylabel="", legend=True, loc='best') :
+    def plot(self, x_key, y_keys, title="", legend=True, loc='best') :
         if not isinstance(y_keys, list) :
             y_keys = [y_keys]
+        
+        if len(y_keys) > 2:
+            raise ValueError('The maximum length of y_keys is two.')
         
         if self._mode > 0 and x_key == 'Epoch' :
             data = self.to_dataframe(['Epoch'] + y_keys).groupby('Epoch').tail(1)
@@ -147,20 +150,37 @@ class RecordManager(object) :
         else : 
             data = self.to_dataframe([x_key] + y_keys)
             
-        for key in y_keys :
-            plt.plot(data[x_key], data[key])
+        if len(y_keys) == 1 :
+            plt.plot(data[x_key], data[y_keys[0]]) 
+            plt.xlabel(x_key)
+            plt.ylabel(y_keys[0]) 
+
+            if legend :
+                plt.legend(y_keys, loc=loc)
             
-        if self._mode > 0 and x_key == 'Epoch' :
-            plt.xticks(data[x_key])
-        if self._mode > 1 and x_key == 'Iter' :
-            plt.xticks(data[x_key])
+        elif len(y_keys) == 2 :
+            fig = plt.figure()
+            ax1 = fig.add_subplot(111)
+            ax2 = ax1.twinx()
+            
+            line1 = ax1.plot(data[x_key], data[y_keys[0]], 'r-')
+            line2 = ax2.plot(data[x_key], data[y_keys[1]], 'b-')
+
+            ax1.set_xlabel(x_key)
+            ax1.set_ylabel(y_keys[0])
+            ax2.set_ylabel(y_keys[1])
+            
+            if legend :
+                lines = line1 + line2
+                labels = [line.get_label() for line in lines]
+                ax1.legend(lines, labels, loc=loc)
+                
+#         if self._mode > 0 and x_key == 'Epoch' :
+#             plt.xticks(data[x_key])
+#         if self._mode > 1 and x_key == 'Iter' :
+#             plt.xticks(data[x_key])
                 
         plt.title(title)
-        plt.ylabel(ylabel)
-        plt.xlabel(xlabel)
-        
-        if legend :
-            plt.legend(y_keys, loc=loc)
             
         plt.show()
         

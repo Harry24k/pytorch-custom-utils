@@ -50,3 +50,20 @@ Transform will help you to construct a new model with certain layers changed.
 * **Transform** :
     * transform_layer
     * transform_model
+
+### Version 0.2
+* **RecordManager**
+    * Ploting two axis added.
+* **Datasets**
+    * CIFAR100 added.
+* **Vis** : 
+    * imshow -> im_show 
+    * weightshow -> weight_show 
+* **Transform** :
+    * transform_layer
+    * transform_model
+
+### Version 0.3
+* **RecordManager**
+* **Transform** :
+    * transform_model : Error Solved. 

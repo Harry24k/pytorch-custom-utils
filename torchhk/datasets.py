@@ -25,6 +25,17 @@ class Datasets() :
                                            download=True, 
                                            transform=transform_test)
             
+        elif data_name == "CIFAR100" :
+            self.train_data = dsets.CIFAR100(root=root, 
+                                             train=True,
+                                             download=True, 
+                                             transform=transform_train)
+
+            self.test_data = dsets.CIFAR100(root=root, 
+                                            train=False,
+                                            download=True, 
+                                            transform=transform_test)
+            
         elif data_name == "STL10" :
             self.train_data = dsets.STL10(root=root, 
                                           split='train',
