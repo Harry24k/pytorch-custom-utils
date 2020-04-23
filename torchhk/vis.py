@@ -32,10 +32,8 @@ def weight_show(model, ncols=2, figsize=(5,5), filter = "",
         plt.ylabel(ylabel)
         plt.xlabel(xlabel)
         
-        if xlim is not None :
-            plt.xlim(xlim)
-        if ylim is not None :
-            plt.ylim(ylim)    
+        plt.xlim(xlim)
+        plt.ylim(ylim)    
             
         plt.title("Total")
         
@@ -61,10 +59,8 @@ def weight_show(model, ncols=2, figsize=(5,5), filter = "",
                 ax.set_ylabel(ylabel)
                 ax.set_xlabel(xlabel)
                 
-                if xlim is not None :
-                    ax.set_xlim(xlim)
-                if ylim is not None :
-                    ax.set_ylim(ylim)    
+                ax.set_xlim(xlim)
+                ax.set_ylim(ylim)    
                 
                 ax.set_title(name)
                 i += 1

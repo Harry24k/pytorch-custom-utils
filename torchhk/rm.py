@@ -134,47 +134,110 @@ class RecordManager(object) :
                 
         print("-"*self._text_len)
         
-    def plot(self, x_key, y_keys, title="", legend=True, loc='best') :
+    def plot(self, x_key, y_keys, title="",
+             xlabel="", ylabel="", ylabel_second="",
+             xlim=None, ylim=None, ylim_second=None,
+             colors = [(0.12156862745098039, 0.4666666666666667, 0.7058823529411765),
+ (1.0, 0.4980392156862745, 0.054901960784313725),
+ (0.17254901960784313, 0.6274509803921569, 0.17254901960784313),
+ (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),
+ (0.5803921568627451, 0.403921568627451, 0.7411764705882353),
+ (0.5490196078431373, 0.33725490196078434, 0.29411764705882354),
+ (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),
+ (0.4980392156862745, 0.4980392156862745, 0.4980392156862745),
+ (0.7372549019607844, 0.7411764705882353, 0.13333333333333333),
+ (0.09019607843137255, 0.7450980392156863, 0.8117647058823529)],
+             legend=True, loc='best') :
+        
+#         tableau20 = [[ 31, 119, 180],
+#              [255, 127,  14],
+#              [ 44, 160,  44],
+#              [214,  39,  40],
+#              [148, 103, 189],
+#              [140,  86,  75],
+#              [227, 119, 194],
+#              [127, 127, 127],
+#              [188, 189,  34],
+#              [ 23, 190, 207]]
+
+#         for i in range(len(tableau20)):  
+#             r, g, b = tableau20[i]  
+#             tableau20[i] = (r / 255., g / 255., b / 255.)  
+
+        
+        colors = itertools.cycle(colors)
+        
         if not isinstance(y_keys, list) :
             y_keys = [y_keys]
-        
-        if len(y_keys) > 2:
-            raise ValueError('The maximum length of y_keys is two.')
-        
+                
         if self._mode > 0 and x_key == 'Epoch' :
-            data = self.to_dataframe(['Epoch'] + y_keys).groupby('Epoch').tail(1)
+            data = self.to_dataframe().groupby('Epoch').tail(1)
         elif self._mode > 1 and x_key == 'Iter' :
 #             print("Warnings : This graph is an estimated graph based on Epoch/Iter.") 
-            data = self.to_dataframe(['Epoch', 'Iter'] + y_keys)
+            data = self.to_dataframe()
             data['Iter'] += (data['Epoch']-min(data['Epoch']))*max(data['Iter'])
         else : 
-            data = self.to_dataframe([x_key] + y_keys)
+            data = self.to_dataframe()
             
         if len(y_keys) == 1 :
-            plt.plot(data[x_key], data[y_keys[0]]) 
-            plt.xlabel(x_key)
-            plt.ylabel(y_keys[0]) 
-
+            if isinstance(y_keys[0], list) :
+                raise ValueError("Please check 'y_keys' shape. List of lists is ONLY for two axises.")
+            plt.plot(data[x_key], data[y_keys[0]], color=next(colors)) 
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel) 
+            plt.xlim(xlim)
+            plt.ylim(ylim)
+            
             if legend :
                 plt.legend(y_keys, loc=loc)
             
         elif len(y_keys) == 2 :
-            fig = plt.figure()
-            ax1 = fig.add_subplot(111)
-            ax2 = ax1.twinx()
-            
-            line1 = ax1.plot(data[x_key], data[y_keys[0]], 'r-')
-            line2 = ax2.plot(data[x_key], data[y_keys[1]], 'b-')
-
-            ax1.set_xlabel(x_key)
-            ax1.set_ylabel(y_keys[0])
-            ax2.set_ylabel(y_keys[1])
-            
-            if legend :
-                lines = line1 + line2
-                labels = [line.get_label() for line in lines]
-                ax1.legend(lines, labels, loc=loc)
+            if not isinstance(y_keys[0], list) :
+                for y_key in y_keys :
+                    plt.plot(data[x_key], data[y_key], color=next(colors)) 
+                    
+                plt.xlabel(xlabel)
+                plt.ylabel(ylabel) 
+                plt.xlim(xlim)
+                plt.ylim(ylim)
+                    
+                if legend :
+                    plt.legend(y_keys, loc=loc)
                 
+            else :
+                if len(y_keys) > 2:
+                    raise ValueError('The maximum length of y_axis is two.')
+                    
+                fig = plt.figure()
+                ax1 = fig.add_subplot(111)
+                ax2 = ax1.twinx()
+
+                lines = None
+                
+                for y_key in y_keys[0] :
+                    line = ax1.plot(data[x_key], data[y_key], color=next(colors))
+                    if lines is None :
+                        lines = line
+                    else :
+                        lines += line
+                for y_key in y_keys[1] :
+                    line = ax2.plot(data[x_key], data[y_key], color=next(colors))
+                    if lines is None :
+                        lines = line
+                    else :
+                        lines += line
+
+                ax1.set_xlabel(xlabel)
+                ax1.set_ylabel(ylabel)
+                ax2.set_ylabel(ylabel_second)
+                ax1.set_xlim(xlim)
+                ax1.set_ylim(ylim)
+                ax2.set_ylim(ylim_second)
+
+                if legend :
+                    labels = [line.get_label() for line in lines]
+                    ax1.legend(lines, labels, loc=loc)
+
 #         if self._mode > 0 and x_key == 'Epoch' :
 #             plt.xticks(data[x_key])
 #         if self._mode > 1 and x_key == 'Iter' :
