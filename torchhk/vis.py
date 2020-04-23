@@ -8,37 +8,108 @@ import torch
 import torch.nn as nn
 import torchvision.utils
 
-def weight_show(model, ncols=2, figsize=(5,5),
-                xlabel='$q_{ij}$', ylabel='Counts', save_path=None) :
+def weight_show(model, ncols=2, figsize=(5,5), filter = "",
+                xlabel='$q_{ij}$', ylabel='Counts',
+                xlim=None, ylim=None, bins=None,
+                save_path=None) :
     
     if not isinstance(model, nn.Module) :
         raise ValueError(reduction + " is not valid")
 
     xsize, ysize = figsize
+
+    if ncols == 0 :
+        fig = plt.figure(figsize=(xsize, ysize))
+        
+        params = []
+        
+        for name, param in model.named_parameters():
+            if param.requires_grad and filter in name :
+                params.append(param.view(-1).cpu().detach())        
+        
+        data = torch.cat(params).view(-1).numpy()
+        sns.distplot(data, kde=False, bins=bins)
+        plt.ylabel(ylabel)
+        plt.xlabel(xlabel)
+        
+        if xlim is not None :
+            plt.xlim(xlim)
+        if ylim is not None :
+            plt.ylim(ylim)    
+            
+        plt.title("Total")
+        
+    else :
+        subplots_num = 0
+        for name, param in model.named_parameters():
+            if param.requires_grad and filter in name :
+                subplots_num += 1
+
+        nrows = math.ceil(subplots_num/ncols)
+        fig, axes = plt.subplots(nrows=nrows, ncols=ncols,
+                                 figsize=(ncols*xsize, nrows*ysize))
+
+        i = 0
+        for name, param in model.named_parameters():
+            if param.requires_grad and filter in name :
+                if ncols == 1:
+                    ax = axes[i//ncols]
+                else :
+                    ax = axes[i//ncols, i%ncols]
+                data = param.view(-1).cpu().detach().numpy()
+                sns.distplot(data, kde=False, ax=ax, bins=bins)
+                ax.set_ylabel(ylabel)
+                ax.set_xlabel(xlabel)
+                
+                if xlim is not None :
+                    ax.set_xlim(xlim)
+                if ylim is not None :
+                    ax.set_ylim(ylim)    
+                
+                ax.set_title(name)
+                i += 1
+
+    plt.tight_layout()
+    if save_path is not None :
+        plt.savefig(save_path)
+        print("Figure Saved!")
+    plt.show()
+    plt.clf()
     
-    subplots_num = 0
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            subplots_num += 1
+    
+def logit_show(model, loader, figsize=(5,5),
+                xlabel='$q_{ij}$', ylabel='Counts',
+                xlim=None, ylim=None, bins=None,
+                save_path=None) :
+    
+    device = next(model.parameters()).device
+    
+    if not isinstance(model, nn.Module) :
+        raise ValueError(reduction + " is not valid")
 
-    nrows = math.ceil(subplots_num/ncols)
-    fig, axes = plt.subplots(nrows=nrows, ncols=ncols,
-                             figsize=(ncols*xsize, nrows*ysize))
+    xsize, ysize = figsize
 
-    i = 0
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            if ncols == 1:
-                ax = axes[i//ncols]
-            else :
-                ax = axes[i//ncols, i%ncols]
-            data = param.view(-1).cpu().detach().numpy()
-            sns.distplot(data, kde=False, ax=ax)
-            ax.set_ylabel(ylabel)
-            ax.set_xlabel(xlabel)
-            ax.set_title(name)
-            i += 1
+    fig = plt.figure(figsize=(xsize, ysize))
 
+    logits = []
+
+    for images, _ in loader :
+        images = images.to(device)
+        logit = model(images).cpu().detach()
+        logits.append(logit.view(-1))        
+
+    data = torch.cat(logits).view(-1).numpy()
+    sns.distplot(data, kde=False, bins=bins)
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
+
+    if xlim is not None :
+        plt.xlim(xlim)
+    if ylim is not None :
+        plt.ylim(ylim)    
+
+    plt.title("Logits")
+        
     plt.tight_layout()
     if save_path is not None :
         plt.savefig(save_path)

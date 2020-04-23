@@ -67,3 +67,7 @@ Transform will help you to construct a new model with certain layers changed.
 * **RecordManager**
 * **Transform** :
     * transform_model : Error Solved. 
+
+### Version 0.4
+* **Datasets** :
+    * Shuffle set to False in validation set.

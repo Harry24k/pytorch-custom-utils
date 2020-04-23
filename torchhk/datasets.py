@@ -126,7 +126,7 @@ class Datasets() :
 
             self.val_loader = DataLoader(dataset=self.val_data,
                                          batch_size=batch_size,
-                                         shuffle=True)
+                                         shuffle=False)
 
             self.test_loader = DataLoader(dataset=self.test_data,
                                           batch_size=batch_size,
