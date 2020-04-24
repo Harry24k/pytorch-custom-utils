@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import DataLoader, Subset
 from torch.utils.data.sampler import SubsetRandomSampler
 
@@ -7,11 +8,17 @@ import torchvision.transforms as transforms
 
 class Datasets() :
     def __init__(self, data_name, root='./data', val_idx=None,
+                 label_filter=None,
                  transform_train=transforms.ToTensor(), 
                  transform_test=transforms.ToTensor(), 
                  transform_val=transforms.ToTensor()) :
 
         self.val_idx = val_idx
+        
+        # TODO : Validation + Label filtering
+        if val_idx is not None :
+            if label_filter is not None :
+                raise ValueError("Validation + Label filtering is not supported yet.")
         
         # Load dataset
         if data_name == "CIFAR10" :
@@ -62,16 +69,8 @@ class Datasets() :
             raise ValueError(data_name + " is not valid")
             
         self.data_name = data_name
-        self.test_len = len(self.test_data)
             
-        if self.val_idx is None :
-            self.train_len = len(self.train_data)
-        
-            print("Data Loaded!")
-            print("Train Data Length :", self.train_len)
-            print("Test Data Length :", self.test_len)
-
-        else :
+        if self.val_idx is not None :
             self.val_data = Subset(self.train_data, self.val_idx)            
             self.val_data.transform = transform_val            
             
@@ -81,10 +80,49 @@ class Datasets() :
             
             self.val_len = len(self.val_idx)
             self.train_len = len(self.train_data)
+            self.test_len = len(self.test_data)
             
-            print("Data Loaded!")
+            print("Data Loaded (w/ Validation Set)!")
             print("Train Data Length :", self.train_len)
             print("Val Data Length :", self.val_len)
+            print("Test Data Length :", self.test_len)
+            
+        elif label_filter is not None :
+            filtered = []
+            
+            # Tensor label to list
+            if type(self.train_data.targets) is torch.Tensor :
+                self.train_data.targets = self.train_data.targets.numpy()
+            if type(self.test_data.targets) is torch.Tensor :
+                self.test_data.targets = self.test_data.targets.numpy()
+            
+            for (i, label) in enumerate(self.train_data.targets) :
+                if label in label_filter.keys() :
+                    filtered.append(i)
+                    self.train_data.targets[i] = label_filter[label]
+            
+            self.train_data = Subset(self.train_data, filtered) 
+            self.train_len = len(self.train_data)
+            
+            filtered = []
+            for (i, label) in enumerate(self.test_data.targets) :
+                if label in label_filter.keys() :
+                    filtered.append(i)
+                    self.test_data.targets[i] = label_filter[label]    
+                    
+            self.test_data = Subset(self.test_data, filtered) 
+            self.test_len = len(self.test_data)
+            
+            print("Data Loaded! (w/ Label Filtering)")
+            print("Train Data Length :", self.train_len)
+            print("Test Data Length :", self.test_len)
+            
+        else :
+            self.train_len = len(self.train_data)
+            self.test_len = len(self.test_data)
+        
+            print("Data Loaded!")
+            print("Train Data Length :", self.train_len)
             print("Test Data Length :", self.test_len)
         
     def get_len(self) :
