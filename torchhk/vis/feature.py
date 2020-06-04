@@ -1,4 +1,5 @@
 import math
+from collections.abc import Iterable
 
 import numpy as np
 import seaborn as sns
@@ -19,33 +20,22 @@ def _to_numpy(input) :
         else :
             raise RuntimeError("Please input tensor or numpy array.")
 
+def _del_none(input) :
+    for key in input.keys() :
+        if input is None :
+            del input[key]
             
-def plot_scatter(ax, input, marker='o', marker_size=5, color=None, label=None, alpha=None) :
-    
-    input = _to_numpy(input)
-    ax.scatter(input[:, 0], input[:, 1], marker=marker, s=marker_size, c=color, label=label, alpha=alpha)
+def plot_scatter(ax, input, marker=None, marker_size=None, color=None, label=None, alpha=None) :
+    kwargs = {'marker':marker, 'marker_size':marker_size, 'color':color, 'label':label, 'alpha':alpha}
+    _del_none(kwargs)
+    ax.scatter(input[:, 0], input[:, 1], **kwargs)
     # TODO : Color, Colorbar, Cmap, Legend
     
     
-def plot_multi_scatter(ax, inputs, markers=None, marker_sizes=None, colors=None, labels=None, alphas=None) :
-    
-    if markers is None :
-        markers = [None]*len(inputs)
-        
-    if marker_sizes is None :
-        marker_sizes = [None]*len(inputs)
-        
-    if colors is None :
-        colors = [None]*len(inputs)
-        
-    if labels is None :
-        labels = [None]*len(inputs)
-        
-    if alphas is None :
-        alphas = [None]*len(inputs)
-    
-    for i, input in enumerate(inputs) :
-        plot_scatter(ax, input, marker=markers[i], marker_size=marker_sizes[i], color=colors[i], label=labels[i], alpha=alphas[i])
+def plot_line(ax, x, input, linewidth=None, linestyle=None, color=None, label=None, alpha=None) :
+    kwargs = {'linewidth':linewidth, 'linestyle':linestyle, 'color':color, 'label':label, 'alpha':alpha}
+    _del_none(kwargs)
+    ax.plot(x, input, **kwargs)
     
     
 def plot_dist(ax, input, kde=False, bins=None, stat=True, norm_hist=False):
@@ -70,6 +60,14 @@ def plot_img(ax, tensor, ncols=2, normalize=False, range=None, padding=2, pad_va
     npimg = img.numpy()
     ax.imshow(np.transpose(npimg,(1,2,0)))
     
+            
+def _to_array(inputs, lengths) :
+    for i, input in enumerate(inputs) :
+        if not isinstance(input, Iterable) :
+            inputs[i] = [input]*lengths
+        
+    return inputs
+
     
 def plot_pca(ax, inputs, markers=None, marker_sizes=None, colors=None, labels=None, alphas=None):
    
@@ -85,8 +83,10 @@ def plot_pca(ax, inputs, markers=None, marker_sizes=None, colors=None, labels=No
     inputs = PCA(n_components=2).fit_transform(inputs)
     inputs = [inputs[idx[i]:idx[i+1]] for i in range(len(idx)-1)]
     
-    plot_multi_scatter(ax, inputs, markers, marker_sizes, colors, labels, alphas)
-
+    markers, marker_sizes, colors, labels, alphas = _to_array([markers, marker_sizes, colors, labels, alphas], len(inputs))
+    for i, input in enumerate(inputs) :
+        plot_scatter(ax, input, marker=markers[i], marker_size=marker_sizes[i], color=colors[i], label=labels[i], alpha=alphas[i])    
+    
     
 def plot_tsne(ax, inputs, markers=None, marker_sizes=None, colors=None, labels=None, alphas=None):
 
@@ -102,7 +102,9 @@ def plot_tsne(ax, inputs, markers=None, marker_sizes=None, colors=None, labels=N
     inputs = TSNE(n_components=2).fit_transform(inputs)
     inputs = [inputs[idx[i]:idx[i+1]] for i in range(len(idx)-1)]
     
-    plot_multi_scatter(ax, inputs, markers, marker_sizes, colors, labels, alphas)
+    markers, marker_sizes, colors, labels, alphas = _to_array([markers, marker_sizes, colors, labels, alphas], len(inputs))
+    for i, input in enumerate(inputs) :
+        plot_scatter(ax, input, marker=markers[i], marker_size=marker_sizes[i], color=colors[i], label=labels[i], alpha=alphas[i])    
     
     
 #     mulabel = np.array(list(range(len(mu))))

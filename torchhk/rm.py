@@ -1,12 +1,13 @@
 from datetime import datetime
+import pickle
+import itertools
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-import pickle
-import itertools
-
+from .vis.base import init_plot, make_twin
+from .vis.feature import plot_line, _to_array
 
 class RecordManager(object) :
     
@@ -135,41 +136,10 @@ class RecordManager(object) :
                 
         print("-"*self._text_len)
         
-    def plot(self, x_key, y_keys, title="",
-             xlabel="", ylabel="", ylabel_second="",
-             xlim=None, ylim=None, ylim_second=None,
-             colors = [(0.12156862745098039, 0.4666666666666667, 0.7058823529411765),
- (1.0, 0.4980392156862745, 0.054901960784313725),
- (0.17254901960784313, 0.6274509803921569, 0.17254901960784313),
- (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),
- (0.5803921568627451, 0.403921568627451, 0.7411764705882353),
- (0.5490196078431373, 0.33725490196078434, 0.29411764705882354),
- (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),
- (0.4980392156862745, 0.4980392156862745, 0.4980392156862745),
- (0.7372549019607844, 0.7411764705882353, 0.13333333333333333),
- (0.09019607843137255, 0.7450980392156863, 0.8117647058823529)],
-             legend=True, loc='best') :
-        
-#         tableau20 = [[ 31, 119, 180],
-#              [255, 127,  14],
-#              [ 44, 160,  44],
-#              [214,  39,  40],
-#              [148, 103, 189],
-#              [140,  86,  75],
-#              [227, 119, 194],
-#              [127, 127, 127],
-#              [188, 189,  34],
-#              [ 23, 190, 207]]
-
-#         for i in range(len(tableau20)):  
-#             r, g, b = tableau20[i]  
-#             tableau20[i] = (r / 255., g / 255., b / 255.)  
-
-        
-        colors = itertools.cycle(colors)
-        
-        if not isinstance(y_keys, list) :
-            y_keys = [y_keys]
+    def plot(self, x_key, y_keys, figsize=(6,6), title="", xlabel="", ylabel="",
+             xlim=None, ylim=None, pad_ratio=0, tight=True, 
+             linestyles=None, linewidths=None, colors=None, labels=None, alphas=None,
+             ylabel_second="", ylim_second=None, legend=True, loc='best') :
                 
         if self._mode > 0 and x_key == 'Epoch' :
             data = self.to_dataframe().groupby('Epoch').tail(1)
@@ -180,74 +150,70 @@ class RecordManager(object) :
         else : 
             data = self.to_dataframe()
             
-        if len(y_keys) == 1 :
-            if isinstance(y_keys[0], list) :
-                raise ValueError("Please check 'y_keys' shape. List of lists is ONLY for two axises.")
-            plt.plot(data[x_key], data[y_keys[0]], color=next(colors)) 
-            plt.xlabel(xlabel)
-            plt.ylabel(ylabel) 
-            plt.xlim(xlim)
-            plt.ylim(ylim)
+        if not isinstance(y_keys, list) :
+            y_keys = [y_keys]
             
-            if legend :
-                plt.legend(y_keys, loc=loc)
-            
-        elif len(y_keys) == 2 :
-            if not isinstance(y_keys[0], list) :
-                for y_key in y_keys :
-                    plt.plot(data[x_key], data[y_key], color=next(colors)) 
-                    
-                plt.xlabel(xlabel)
-                plt.ylabel(ylabel) 
-                plt.xlim(xlim)
-                plt.ylim(ylim)
-                    
-                if legend :
-                    plt.legend(y_keys, loc=loc)
+        # Check version and number of elements
+        ver = 1 # e.g.["a"] or ["a", "b", "c"]
+        length = 0
+        y_keys_flat = []
+        js = []
+        lines2 = []
+        labels2 = []
+        
+        for j, y_key in enumerate(y_keys) :
+            if isinstance(y_key, list) :
                 
+                if len(y_keys) > 2 :
+                    raise RuntimeError("Axes can have the maximum value as 2.")
+                    
+                for y in y_key :
+                    y_keys_flat.append(y)
+                    length += 1
+                    js.append(j)
+                    
+                ver = 2 # e.g. [["a", "b"], "c"] or [["a", "b"], ["c", "d"]]
+
             else :
-                if len(y_keys) > 2:
-                    raise ValueError('The maximum length of y_axis is two.')
-                    
-                fig = plt.figure()
-                ax1 = fig.add_subplot(111)
-                ax2 = ax1.twinx()
+                y_keys_flat.append(y_key)
+                length += 1
+                js.append(j)
 
-                lines = None
+        x = data[x_key]
+        inputs = [data[y_key] for y_key in y_keys_flat]
+            
+        # Draw plots
+        ax = init_plot(ax=None, figsize=figsize, title=title, xlabel=xlabel, ylabel=ylabel,
+                       xlim=xlim, ylim=ylim, pad_ratio=pad_ratio, tight=tight)
+        
+        linestyles, linewidths, colors, labels, alphas = _to_array([linestyles, linewidths, colors, labels, alphas], length)
+        
+        i = 0    
+        if ver == 1:
+            for input in inputs :
+                plot_line(ax, x, input, linestyle=linestyles[i], linewidth=linewidths[i],
+                          color=colors[i], label=labels[i], alpha=alphas[i])
+                i += 1
+
+        elif ver == 2:
+            ax2 = make_twin(ax=ax, ylabel=ylabel_second, ylim=ylim_second)
+            axes = [ax, ax2]
+            for j, input in enumerate(inputs) :
+                plot_line(axes[js[j]], x, input, linestyle=linestyles[i], linewidth=linewidths[i],
+                          color=colors[i], label=labels[i], alpha=alphas[i])
+                i += 1
                 
-                for y_key in y_keys[0] :
-                    line = ax1.plot(data[x_key], data[y_key], color=next(colors))
-                    if lines is None :
-                        lines = line
-                    else :
-                        lines += line
-                for y_key in y_keys[1] :
-                    line = ax2.plot(data[x_key], data[y_key], color=next(colors))
-                    if lines is None :
-                        lines = line
-                    else :
-                        lines += line
-
-                ax1.set_xlabel(xlabel)
-                ax1.set_ylabel(ylabel)
-                ax2.set_ylabel(ylabel_second)
-                ax1.set_xlim(xlim)
-                ax1.set_ylim(ylim)
-                ax2.set_ylim(ylim_second)
-
-                if legend :
-                    labels = [line.get_label() for line in lines]
-                    ax1.legend(lines, labels, loc=loc)
-
-#         if self._mode > 0 and x_key == 'Epoch' :
-#             plt.xticks(data[x_key])
-#         if self._mode > 1 and x_key == 'Iter' :
-#             plt.xticks(data[x_key])
+            lines2, labels2 = ax2.get_legend_handles_labels()
                 
-        plt.title(title)
+        else :
+            raise RuntimeError("Unreadable inputs")
+            
+        if legend :
+            lines, labels = ax.get_legend_handles_labels()
+            ax.legend(lines + lines2, labels + labels2, loc=loc)
             
         plt.show()
-        
+            
     def to_dataframe(self, keys=None) :
         if keys == None :
             keys = self._keys
