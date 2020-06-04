@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import pickle
 import itertools
 
+
 class RecordManager(object) :
     
     def __init__(self, keys) :

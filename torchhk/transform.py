@@ -1,7 +1,9 @@
 import copy
+import warnings
+
 import torch
 import torch.nn as nn
-import warnings
+
 
 def transform_layer(input, from_inst, to_inst, args={}, attrs={}):
     if isinstance(input, from_inst) :
@@ -23,6 +25,7 @@ def transform_layer(input, from_inst, to_inst, args={}, attrs={}):
     else :
         output = input        
     return output
+
 
 def transform_model(input, from_inst, to_inst, args={}, attrs={}, inplace=True, _warn=True):
     if inplace :

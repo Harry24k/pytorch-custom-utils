@@ -6,6 +6,7 @@ import torchvision.utils
 import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 
+
 class Datasets() :
     def __init__(self, data_name, root='./data', val_idx=None,
                  label_filter=None,
@@ -65,6 +66,28 @@ class Datasets() :
                                          download=True, 
                                          transform=transform_test)
             
+        elif data_name == "FashionMNIST" :
+            self.train_data = dsets.FashionMNIST(root=root, 
+                                                 train=True,
+                                                 download=True, 
+                                                 transform=transform_train)
+            
+            self.test_data = dsets.FashionMNIST(root=root, 
+                                                train=False,
+                                                download=True, 
+                                                transform=transform_test)
+            
+        elif data_name == "SVHN" :
+            self.train_data = MNISTM(root=root, 
+                                     split='train',
+                                     download=True,    
+                                     transform=transform_train)
+            
+            self.test_data = MNISTM(root=root, 
+                                    split='test',
+                                    download=True, 
+                                    transform=transform_test)
+            
         elif data_name == "MNISTM" :
             self.train_data = MNISTM(root=root, 
                                      train=True,
@@ -76,6 +99,27 @@ class Datasets() :
                                     download=True, 
                                     transform=transform_test)
             
+        elif data_name == "ImageNet" :
+            self.train_data = ImageNet(root=root, 
+                                       split='train',
+                                       download=True,    
+                                       transform=transform_train)
+            
+            self.test_data = ImageNet(root=root, 
+                                      split='val',
+                                      download=True, 
+                                      transform=transform_test)
+        
+        elif data_name == "USPS" :
+            self.train_data = USPS(root=root, 
+                                   train=True,
+                                   download=True,    
+                                   transform=transform_train)
+            
+            self.test_data = USPS(root=root, 
+                                  train=False,
+                                  download=True, 
+                                  transform=transform_test)
             
         else : 
             raise ValueError(data_name + " is not valid")
