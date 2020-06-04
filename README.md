@@ -25,7 +25,7 @@ from torchhk import *
 ```
 
 ### Demos
-* **rm(RecordManager)** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/RecordManager.ipynb)): 
+* **rm(RecordManager)** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/RecordManager.ipynb), [markdown](https://github.com/Harry24k/pytorch-custom-utils/blob/master/docs/RecordManager.md)): 
 RecordManager will help you to record loss or accuracy during iterations. It also provides some useful functions such as summary, plot, etc.
 
 * **datasets(Datasets)** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/Datasets.ipynb), [markdown](https://github.com/Harry24k/pytorch-custom-utils/blob/master/docs/Datasets.md)): Dataset utils for loading, split and label filtering.
