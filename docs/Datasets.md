@@ -200,5 +200,5 @@ plot_img(ax, train_img, ncols=5)
 ```
 
 
-![png](output_11_0.png)
+![png](images/datasets/output_11_0.png)
 
