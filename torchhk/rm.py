@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from .vis.base import init_plot, make_twin
-from .vis.feature import plot_line, _to_array
+from .vis._base import init_plot, make_twin
+from .vis._feature import plot_line, _to_array
 
 class RecordManager(object) :
     
