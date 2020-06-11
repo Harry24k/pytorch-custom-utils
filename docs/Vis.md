@@ -1,29 +1,32 @@
 
 # Vis
 
+<!-- MarkdownTOC autolink="true" lowercase="false" -->
+
+- [Base](#Base)
+    - [Create Plot](#Create-Plot)
+    - [Subplots](#Subplots)
+    - [Twinplot](#Twinplot)
+    - [Cmap](#Cmap)
+- [Feature](#Feature)
+    - [plot_scatter](#plot_scatter)
+    - [plot_dist](#plot_dist)
+    - [plot_img](#plot_img)
+    - [plot_pca](#plot_pca)
+    - [plot_tsne](#plot_tsne)
+- [Model](#Model)
+    - [plot_logit_dist](#plot_logit_dist)
+    - [plot_grad_dist](#plot_grad_dist)
+    - [plot_decision_boundary](#plot_decision_boundary)
+    - [plot_weight](#plot_weight)
+    - [plot_individual_weight](#plot_individual_weight)
+    - [plot_perturb](#plot_perturb)
+
+<!-- /MarkdownTOC -->
 
 ```python
 from torchhk.vis import *
 ```
-
-## Table of Contents
-
-- [Base](#Base)
-	- [Create Plot](#Create-Plot)
-	- [Subplots](#Subplots)
-- [Feature](#Feature)
-	- [plot_scatter](#plot_scatter)
-	- [plot_dist](#plot_dist)
-	- [plot_img](#plot_img)
-	- [plot_pca](#plot_pca)
-	- [plot_tsne](#plot_tsne)
-- [Model](#Model)
-	- [plot_logit_dist](#plot_logit_dist)
-	- [plot_grad_dist](#plot_grad_dist)
-	- [plot_decision_boundary](#plot_decision_boundary)
-	- [plot_weight](#plot_weight)
-	- [plot_individual_weight](#plot_individual_weight)
-	- [plot_perturb](#plot_perturb)
 
 ## Base
 
@@ -36,7 +39,7 @@ ax = init_plot(ax=None, figsize=(3,3), title="", xlabel="", ylabel="",
 ```
 
 
-![png](images/vis/output_6_0.png)
+![png](output_4_0.png)
 
 
 ### Subplots
@@ -50,7 +53,51 @@ ax3 = init_plot(ax=ax[2], title="Figure 3")
 ```
 
 
-![png](images/vis/output_8_0.png)
+![png](output_6_0.png)
+
+
+### Twinplot
+
+
+```python
+ax1 = init_plot(title="Figure 1", ylabel="First")
+ax2 = make_twin(ax1, ylabel="Second")
+```
+
+
+![png](output_8_0.png)
+
+
+### Cmap
+
+
+```python
+cmap = get_cmap(input='tab10', num=10)
+sns.palplot(cmap.colors)
+```
+
+
+![png](output_10_0.png)
+
+
+
+```python
+cmap = get_cmap(input='tab10', num=10)
+sns.palplot(cmap.colors)
+```
+
+
+![png](output_11_0.png)
+
+
+
+```python
+cmap = get_cmap(input=["#9b59b6", "#3498db", "#95a5a6"])
+sns.palplot(cmap.colors)
+```
+
+
+![png](output_12_0.png)
 
 
 ## Feature
@@ -64,7 +111,8 @@ plot_scatter(ax, torch.rand(100, 2))
 ```
 
 
-![png](images/vis/output_11_0.png)
+![png](output_15_0.png)
+
 
 
 ```python
@@ -74,8 +122,18 @@ plot_scatter(ax, torch.rand(100, 2), color='blue', marker='x', marker_size=20)
 ```
 
 
-![png](images/vis/output_13_0.png)
+![png](output_16_0.png)
 
+
+
+```python
+ax = init_plot(figsize=(3,3), title="Scatter with Colorbar")
+plot_scatter(ax, torch.rand(100, 2), color=torch.randint(low=0, high=3, size=torch.rand(100).shape),
+             marker='o', marker_size=10, cmap=cmap, colorbar=True, colorbar_ticks=['a', 'b', 'c'])
+```
+
+
+![png](output_17_0.png)
 
 
 ### plot_dist
@@ -87,14 +145,14 @@ plot_dist(ax, torch.rand(100), bins=[0, 0.2, 0.4, 0.6, 0.8, 1], stat=True, norm_
 ```
 
     - Stats
-    Max : 0.988328
-    Min : 0.006063
-    Mean : 0.505370
-    Median : 0.558285
+    Max : 0.999406
+    Min : 0.014376
+    Mean : 0.520582
+    Median : 0.523628
     
 
 
-![png](images/vis/output_16_1.png)
+![png](output_19_1.png)
 
 
 ### plot_img
@@ -125,7 +183,7 @@ plot_img(ax, train_images, ncols=3, padding=3, pad_value=0.5)
 ```
 
 
-![png](images/vis/output_20_0.png)
+![png](output_23_0.png)
 
 
 ### plot_pca
@@ -137,7 +195,7 @@ plot_pca(ax, [torch.rand(100, 3), torch.rand(100, 3)], colors=['blue', 'red'])
 ```
 
 
-![png](images/vis/output_22_0.png)
+![png](output_25_0.png)
 
 
 ### plot_tsne
@@ -149,7 +207,7 @@ plot_pca(ax, [torch.rand(100, 3), torch.rand(100, 3)], colors=['blue', 'red'], a
 ```
 
 
-![png](images/vis/output_24_0.png)
+![png](output_27_0.png)
 
 
 ## Model
@@ -204,7 +262,7 @@ model = CNN().cuda()
 ```python
 loss = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
-num_epochs = 2 
+num_epochs = 2
 ```
 
 
@@ -239,10 +297,10 @@ for epoch in range(num_epochs):
                  %(epoch+1, num_epochs, i+1, len(train_loader), cost.item()))
 ```
 
-    Epoch [1/2], lter [200/468], Loss: 0.3682
-    Epoch [1/2], lter [400/468], Loss: 0.2085
-    Epoch [2/2], lter [200/468], Loss: 0.1438
-    Epoch [2/2], lter [400/468], Loss: 0.4041
+    Epoch [1/2], lter [200/468], Loss: 2.3004
+    Epoch [1/2], lter [400/468], Loss: 2.3018
+    Epoch [2/2], lter [200/468], Loss: 2.3126
+    Epoch [2/2], lter [400/468], Loss: 2.3093
     
 
 
@@ -263,7 +321,7 @@ for images, labels in test_loader:
 print('Accuracy of test images: %f %%' % (100 * float(correct) / total))
 ```
 
-    Accuracy of test images: 95.180000 %
+    Accuracy of test images: 11.350000 %
     
 
 ### plot_logit_dist
@@ -275,14 +333,14 @@ plot_logit_dist(ax, model, train_loader)
 ```
 
     - Stats
-    Max : 76.172798
-    Min : -57.808464
-    Mean : 0.219457
-    Median : -0.242751
+    Max : 0.161103
+    Min : -0.232128
+    Mean : 0.002596
+    Median : -0.000358
     
 
 
-![png](images/vis/output_34_1.png)
+![png](output_37_1.png)
 
 
 ### plot_grad_dist
@@ -294,14 +352,14 @@ plot_grad_dist(ax, model, train_loader, loss=nn.CrossEntropyLoss(), bins=[-0.1, 
 ```
 
     - Stats
-    Max : 0.228346
-    Min : -0.377700
-    Mean : -0.000003
+    Max : 0.000000
+    Min : 0.000000
+    Mean : 0.000000
     Median : 0.000000
     
 
 
-![png](images/vis/output_36_1.png)
+![png](output_39_1.png)
 
 
 ### plot_decision_boundary
@@ -330,17 +388,31 @@ plot_decision_boundary(ax, latent_model, xrange=(-10, 10), yrange=(-10, 10))
 ```
 
 
-![png](images/vis/output_39_0.png)
+![png](output_42_0.png)
 
 
 
 ```python
-ax = init_plot(figsize=(5, 5), title="Decision Boundary")
-plot_decision_boundary(ax, latent_model, xrange=(-10, 10), yrange=(-10, 10), as_line=True)
+cmap = get_cmap('tab10', 10)
+
+ax = init_plot(figsize=(5, 5), title="Decision Boundary with Colorbar")
+plot_decision_boundary(ax, latent_model, xrange=(-10, 10), yrange=(-10, 10),
+                       cmap=cmap, colorbar=True)#, colorbar_ticks=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
 ```
 
 
-![png](images/vis/output_40_0.png)
+![png](output_43_0.png)
+
+
+
+```python
+cmap = get_cmap(['#000000']*10)
+ax = init_plot(figsize=(5, 5), title="Decision Boundary without fill")
+plot_decision_boundary(ax, latent_model, xrange=(-10, 10), yrange=(-10, 10), as_line=True, cmap=cmap)
+```
+
+
+![png](output_44_0.png)
 
 
 ### plot_weight
@@ -359,14 +431,14 @@ plot_weight(ax, model, filter=filter)
 ```
 
     - Stats
-    Max : 2.984758
-    Min : -1.549882
-    Mean : -0.011701
-    Median : -0.007734
+    Max : 0.438365
+    Min : -0.428861
+    Mean : -0.000034
+    Median : -0.000063
     
 
 
-![png](images/vis/output_43_1.png)
+![png](output_47_1.png)
 
 
 ### plot_individual_weight
@@ -385,7 +457,7 @@ plot_individual_weight(model, ncols=1, filter=filter)
 ```
 
 
-![png](images/vis/output_46_0.png)
+![png](output_50_0.png)
 
 
 ### plot_perturb
