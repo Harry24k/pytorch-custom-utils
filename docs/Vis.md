@@ -39,7 +39,7 @@ ax = init_plot(ax=None, figsize=(3,3), title="", xlabel="", ylabel="",
 ```
 
 
-![png](output_4_0.png)
+![png](images/vis/output_4_0.png)
 
 
 ### Subplots
@@ -53,7 +53,7 @@ ax3 = init_plot(ax=ax[2], title="Figure 3")
 ```
 
 
-![png](output_6_0.png)
+![png](images/vis/output_6_0.png)
 
 
 ### Twinplot
@@ -65,7 +65,7 @@ ax2 = make_twin(ax1, ylabel="Second")
 ```
 
 
-![png](output_8_0.png)
+![png](images/vis/output_8_0.png)
 
 
 ### Cmap
@@ -77,7 +77,7 @@ sns.palplot(cmap.colors)
 ```
 
 
-![png](output_10_0.png)
+![png](images/vis/output_10_0.png)
 
 
 
@@ -87,7 +87,7 @@ sns.palplot(cmap.colors)
 ```
 
 
-![png](output_11_0.png)
+![png](images/vis/output_11_0.png)
 
 
 
@@ -97,7 +97,7 @@ sns.palplot(cmap.colors)
 ```
 
 
-![png](output_12_0.png)
+![png](images/vis/output_12_0.png)
 
 
 ## Feature
@@ -111,7 +111,7 @@ plot_scatter(ax, torch.rand(100, 2))
 ```
 
 
-![png](output_15_0.png)
+![png](images/vis/output_15_0.png)
 
 
 
@@ -122,7 +122,7 @@ plot_scatter(ax, torch.rand(100, 2), color='blue', marker='x', marker_size=20)
 ```
 
 
-![png](output_16_0.png)
+![png](images/vis/output_16_0.png)
 
 
 
@@ -133,7 +133,7 @@ plot_scatter(ax, torch.rand(100, 2), color=torch.randint(low=0, high=3, size=tor
 ```
 
 
-![png](output_17_0.png)
+![png](images/vis/output_17_0.png)
 
 
 ### plot_dist
@@ -152,7 +152,7 @@ plot_dist(ax, torch.rand(100), bins=[0, 0.2, 0.4, 0.6, 0.8, 1], stat=True, norm_
     
 
 
-![png](output_19_1.png)
+![png](images/vis/output_19_1.png)
 
 
 ### plot_img
@@ -183,7 +183,7 @@ plot_img(ax, train_images, ncols=3, padding=3, pad_value=0.5)
 ```
 
 
-![png](output_23_0.png)
+![png](images/vis/output_23_0.png)
 
 
 ### plot_pca
@@ -195,7 +195,7 @@ plot_pca(ax, [torch.rand(100, 3), torch.rand(100, 3)], colors=['blue', 'red'])
 ```
 
 
-![png](output_25_0.png)
+![png](images/vis/output_25_0.png)
 
 
 ### plot_tsne
@@ -207,7 +207,7 @@ plot_pca(ax, [torch.rand(100, 3), torch.rand(100, 3)], colors=['blue', 'red'], a
 ```
 
 
-![png](output_27_0.png)
+![png](images/vis/output_27_0.png)
 
 
 ## Model
@@ -340,7 +340,7 @@ plot_logit_dist(ax, model, train_loader)
     
 
 
-![png](output_37_1.png)
+![png](images/vis/output_37_1.png)
 
 
 ### plot_grad_dist
@@ -359,7 +359,7 @@ plot_grad_dist(ax, model, train_loader, loss=nn.CrossEntropyLoss(), bins=[-0.1, 
     
 
 
-![png](output_39_1.png)
+![png](images/vis/output_39_1.png)
 
 
 ### plot_decision_boundary
@@ -388,7 +388,7 @@ plot_decision_boundary(ax, latent_model, xrange=(-10, 10), yrange=(-10, 10))
 ```
 
 
-![png](output_42_0.png)
+![png](images/vis/output_42_0.png)
 
 
 
@@ -401,7 +401,7 @@ plot_decision_boundary(ax, latent_model, xrange=(-10, 10), yrange=(-10, 10),
 ```
 
 
-![png](output_43_0.png)
+![png](images/vis/output_43_0.png)
 
 
 
@@ -412,7 +412,7 @@ plot_decision_boundary(ax, latent_model, xrange=(-10, 10), yrange=(-10, 10), as_
 ```
 
 
-![png](output_44_0.png)
+![png](images/vis/output_44_0.png)
 
 
 ### plot_weight
@@ -438,7 +438,7 @@ plot_weight(ax, model, filter=filter)
     
 
 
-![png](output_47_1.png)
+![png](images/vis/output_47_1.png)
 
 
 ### plot_individual_weight
@@ -457,7 +457,7 @@ plot_individual_weight(model, ncols=1, filter=filter)
 ```
 
 
-![png](output_50_0.png)
+![png](images/vis/output_50_0.png)
 
 
 ### plot_perturb
