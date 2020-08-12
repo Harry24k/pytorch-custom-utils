@@ -8,12 +8,15 @@ import torchvision.transforms as transforms
 
 
 class Datasets() :
-    def __init__(self, data_name, root='./data', val_idx=None,
+    def __init__(self, data_name, root='./data',
+                 val_idx=None,
                  label_filter=None,
+                 shuffle_train=True,
                  transform_train=transforms.ToTensor(), 
                  transform_test=transforms.ToTensor(), 
                  transform_val=transforms.ToTensor()) :
 
+        self.shuffle_train = shuffle_train
         self.val_idx = val_idx
         
         # TODO : Validation + Label filtering
@@ -200,7 +203,7 @@ class Datasets() :
         if self.val_idx is None :
             self.train_loader = DataLoader(dataset=self.train_data,
                                            batch_size=batch_size,
-                                           shuffle=True,
+                                           shuffle=self.shuffle_train,
                                            drop_last=True)
 
             self.test_loader = DataLoader(dataset=self.test_data,
@@ -215,7 +218,7 @@ class Datasets() :
         else :    
             self.train_loader = DataLoader(dataset=self.train_data,
                                            batch_size=batch_size,
-                                           shuffle=True,
+                                           shuffle=self.shuffle_train,
                                            drop_last=True)
 
             self.val_loader = DataLoader(dataset=self.val_data,
