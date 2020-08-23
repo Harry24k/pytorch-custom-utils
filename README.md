@@ -29,7 +29,7 @@ from torchhk import *
 RecordManager will help you to record loss or accuracy during iterations. It also provides some useful functions such as summary, plot, etc.
 
 * **Datasets** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/Datasets.ipynb), [markdown](https://github.com/Harry24k/pytorch-custom-utils/blob/master/docs/Datasets.md)): Dataset utils for loading, split and label filtering.
-    > Supported Datasets: CIFAR10, CIFAR100, STL10, MNIST, FashionMNIST, SVHN, MNISTM, ImageNet, USPS.
+    > Supported Datasets: CIFAR10, CIFAR100, STL10, MNIST, FashionMNIST, SVHN, MNISTM, ImageNet, USPS, TinyImageNet.
 
 * **Vis** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/Vis.ipynb), [markdown](https://github.com/Harry24k/pytorch-custom-utils/blob/master/docs/Vis.md)): Visualization tools for torch tensors.
 
