@@ -9,6 +9,10 @@ import torch.nn as nn
 import torchvision.utils
 import plotly.graph_objects as go
 
+from mpl_toolkits import mplot3d
+from matplotlib.colors import LightSource
+from matplotlib import cm
+
 from ._base import *
 from ._feature import *
 from ._feature import _draw_colorbar
@@ -140,13 +144,9 @@ def plot_individual_weight(model, ncols=2, figsize=(5,5),
             ax.set_title(name)
             i += 1
         
-def plot_perturb(model, image, label, vec_x, vec_y, range_x, range_y, 
-                 grid_size=50, color='Viridis', loss=nn.CrossEntropyLoss(reduction='none'),
-                 batch_size=128, z_by_loss=True, color_by_loss=True,
-                 min_value=0, max_value=9,
-                 title='Loss Visualization', width=600, height=600,
-                 x_ratio=1, y_ratio=1, z_ratio=1, device=None) :
-    
+def cal_perturb(model, image, label, vec_x, vec_y, range_x, range_y, 
+                 grid_size=50, loss=nn.CrossEntropyLoss(reduction='none'),
+                 batch_size=128, device=None):
     rx = np.linspace(*range_x, grid_size)
     ry = np.linspace(*range_y, grid_size)
     
@@ -188,25 +188,136 @@ def plot_perturb(model, image, label, vec_x, vec_y, range_x, range_y,
     pre_list = np.concatenate(pre_list).reshape(len(rx), len(ry))
     loss_list = np.concatenate(loss_list).reshape(len(rx), len(ry))
     
+    return rx, ry, loss_list, pre_list
+
+def plot_perturb_plotly(rx, ry, loss, predict,
+                        z_by_loss=True, color_by_loss=False, color='viridis',
+                        min_value=None, max_value=None,
+                        title='Loss Visualization', width=600, height=600,
+                        x_ratio=1, y_ratio=1, z_ratio=1) :
+    
     if z_by_loss :
-        zs = loss_list
+        zs = loss
     else :
-        zs = pre_list
+        zs = predict
     
     if color_by_loss :
-        colors = loss_list
+        colors = loss
     else :
-        colors = pre_list
+        colors = predict
     
+    if min_value is None :
+        min_value = int(colors.min())
+    if max_value is None :
+        max_value = int(colors.max())
+        
     fig = go.Figure(data=[go.Surface(z=zs, x=rx, y=ry, surfacecolor=colors, 
-                                     colorscale=color, showscale=True, cmin=min_value, cmax=max_value)],)
-    
+                                     colorscale=color, showscale=True, cmin=min_value,
+                                     cmax=max_value)],)
+
 #     fig.update_traces(contours_z=dict(show=True, usecolormap=True,
 #                                       project_z=True))
-    
+
     fig.update_layout(title=title, autosize=True,
                       width=width, height=height, margin=dict(l=65, r=50, b=65, t=90),
                       scene = {
                           "aspectratio": {"x": x_ratio, "y": y_ratio, "z": z_ratio}
                       })
+    
     fig.show()
+    
+def plot_perturb_plt(rx, ry, loss, predict,
+                     z_by_loss=True, color_by_loss=False, color='viridis', 
+                     min_value=None, max_value=None,
+                     title=None, width=8, height=7, linewidth = 0.1,
+                     x_ratio=1, y_ratio=1, z_ratio=1,
+                     edge_color='#f2fafb', colorbar_yticklabels=None,
+                     pane_color=(1.0, 1.0, 1.0, 0.0),
+                     tick_pad_x=0, tick_pad_y=0, tick_pad_z=1.5,
+                     xticks=None, yticks=None, zticks=None,
+                     xlabel=None, ylabel=None, zlabel=None,
+                     view_azimuth=230, view_altitude=30,
+                     light_azimuth=315, light_altitude=45, light_exag=0) :
+    
+    if z_by_loss :
+        zs = loss
+    else :
+        zs = predict
+    
+    if color_by_loss :
+        colors = loss
+    else :
+        colors = predict
+    
+    xs, ys = np.meshgrid(rx, ry)
+    
+    fig = plt.figure(figsize=(width, height))
+    ax = plt.axes(projection='3d')
+    
+    if title is not None :
+        ax.set_title(title)
+    
+    if min_value is None :
+        min_value = int(colors.min())
+    if max_value is None :
+        max_value = int(colors.max())
+        
+    if 'float' in str(colors.dtype):
+         scamap = cm.ScalarMappable(cmap=get_cmap(color))
+    else:    
+         scamap = cm.ScalarMappable(cmap=get_cmap(color, max_value-min_value+1))
+   
+    scamap.set_array(colors)
+    scamap.set_clim(vmax=max_value+.5, vmin=min_value-.5)
+
+    # The azimuth (0-360, degrees clockwise from North) of the light source. Defaults to 315 degrees (from the northwest).
+    # The altitude (0-90, degrees up from horizontal) of the light source. Defaults to 45 degrees from horizontal.
+
+    ls = LightSource(azdeg=light_azimuth, altdeg=light_altitude)
+    fcolors = ls.shade(colors, cmap=scamap.cmap, vert_exag=light_exag, blend_mode='soft')
+    surf = ax.plot_surface(xs, ys, zs, rstride=1, cstride=1, facecolors=fcolors,
+                           linewidth=linewidth, antialiased=True, shade=False)
+
+    surf.set_edgecolor(edge_color)
+
+    ax.view_init(azim=view_azimuth, elev=view_altitude)
+
+    # You can change 0.01 to adjust the distance between the main image and the colorbar.
+    # You can change 0.02 to adjust the width of the colorbar.
+    cax = fig.add_axes([ax.get_position().x1+0.01,
+                        ax.get_position().y0+ax.get_position().height/8,
+                        0.02,
+                        ax.get_position().height/4*3])
+    
+    cbar = plt.colorbar(scamap,
+                        ticks=np.linspace(min_value, max_value, max_value-min_value+1),
+                        cax=cax)
+    
+    if colorbar_yticklabels is not None :
+        cbar.ax.set_yticklabels(colorbar_yticklabels)
+    
+    ax.xaxis.set_rotate_label(False)
+    ax.yaxis.set_rotate_label(False)
+    ax.zaxis.set_rotate_label(False)
+    
+    if xlabel is not None :
+        ax.set_xlabel(xlabel, rotation=0)
+    if ylabel is not None :
+        ax.set_ylabel(ylabel, rotation=0)
+    if zlabel is not None :
+        ax.set_zlabel(zlabel, rotation=0)
+        
+    if xticks is not None :
+        ax.set_xticks(xticks)
+    if yticks is not None :
+        ax.set_yticks(yticks)
+    if zticks is not None :
+        ax.set_zticks(zticks)
+    
+    ax.xaxis.set_pane_color(pane_color)
+    ax.yaxis.set_pane_color(pane_color)
+    ax.zaxis.set_pane_color(pane_color)
+    
+    ax.tick_params(axis='x', pad=tick_pad_x)
+    ax.tick_params(axis='y', pad=tick_pad_y)
+    ax.tick_params(axis='z', pad=tick_pad_z)

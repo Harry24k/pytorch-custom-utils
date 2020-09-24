@@ -49,10 +49,20 @@ def plot_scatter(ax, input, marker=None, marker_size=None, color=None, label=Non
     if colorbar :
         _draw_colorbar(ca, cmap, colorbar_ticks)
     
-def plot_line(ax, x, input, linewidth=None, linestyle=None, color=None, label=None, alpha=None) :
-    kwargs = {'linewidth':linewidth, 'linestyle':linestyle, 'color':color, 'label':label, 'alpha':alpha}
+def plot_line(ax, x, input, linewidth=None, linestyle=None,
+              color=None, label=None, alpha=None, dashes=None,
+              marker=None, markerfacecolor=None, markersize=None) :
+    kwargs = {'linewidth':linewidth, 'linestyle':linestyle,
+              'color':color, 'label':label, 'alpha':alpha, 'dashes':dashes,
+              'marker':marker, 'markerfacecolor':markerfacecolor, 'markersize':markersize}
     _del_none(kwargs)
     ax.plot(x, input, **kwargs)
+    
+def plot_hist(ax, input, color=None, label=None, alpha=None, bins=None, edgecolor=None):
+    kwargs = {'color':color, 'label':label,
+              'alpha':alpha, 'bins':bins, 'edgecolor':edgecolor}
+    _del_none(kwargs)
+    ax.hist(input, **kwargs)
     
     
 def plot_dist(ax, input, kde=False, bins=None, stat=True, norm_hist=False):

@@ -18,13 +18,18 @@ def init_settings(font_size=None, title_size=None, label_size=None,
     print("rcParams updated.")
 
 def get_cmap(input=None, num=-1) :
+    if input is None :
+        raise RuntimeError("Can't generate a cmap without any inputs")
+        
     c = sns.color_palette(input)
+    
     if num != -1 :
-        if input is None :
-            raise RuntimeError("Can't generate a cmap without any inputs")
-        else :
-            c = c[:num]
-    return matplotlib.colors.ListedColormap(c)
+        c = c*num
+        c = c[:num]
+        return matplotlib.colors.ListedColormap(c)
+    else :
+        return matplotlib.colors.LinearSegmentedColormap.from_list("custom", c)
+    
 
 def init_plot(ax=None, figsize=(6,6), title=None, xlabel=None, ylabel=None,
               xlim=None, ylim=None, pad_ratio=0, show_axis=True, show_grid=False, tight=True) :
@@ -80,6 +85,7 @@ def _add_margin(x_min, x_max, ratio=0.3):
     return mean - range/2 * (1+ratio), mean + range/2 * (1+ratio)
 
 def _del_none(input) :
-    for key in input.keys() :
-        if input is None :
+    keys = input.copy().keys()
+    for key in keys :
+        if input[key] is None :
             del input[key]

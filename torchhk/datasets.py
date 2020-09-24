@@ -81,15 +81,15 @@ class Datasets() :
                                                 transform=transform_test)
             
         elif data_name == "SVHN" :
-            self.train_data = MNISTM(root=root, 
-                                     split='train',
-                                     download=True,    
-                                     transform=transform_train)
+            self.train_data = dsets.SVHN(root=root, 
+                                         split='train',
+                                         download=True,    
+                                         transform=transform_train)
             
-            self.test_data = MNISTM(root=root, 
-                                    split='test',
-                                    download=True, 
-                                    transform=transform_test)
+            self.test_data = dsets.SVHN(root=root, 
+                                        split='test',
+                                        download=True, 
+                                        transform=transform_test)
             
         elif data_name == "MNISTM" :
             self.train_data = MNISTM(root=root, 
