@@ -236,6 +236,7 @@ def plot_perturb_plt(rx, ry, loss, predict,
                      tick_pad_x=0, tick_pad_y=0, tick_pad_z=1.5,
                      xticks=None, yticks=None, zticks=None,
                      xlabel=None, ylabel=None, zlabel=None,
+                     xlabel_rotation=0, ylabel_rotation=0, zlabel_rotation=0,
                      view_azimuth=230, view_altitude=30,
                      light_azimuth=315, light_altitude=45, light_exag=0) :
     
@@ -301,11 +302,11 @@ def plot_perturb_plt(rx, ry, loss, predict,
     ax.zaxis.set_rotate_label(False)
     
     if xlabel is not None :
-        ax.set_xlabel(xlabel, rotation=0)
+        ax.set_xlabel(xlabel, rotation=xlabel_rotation)
     if ylabel is not None :
-        ax.set_ylabel(ylabel, rotation=0)
+        ax.set_ylabel(ylabel, rotation=ylabel_rotation)
     if zlabel is not None :
-        ax.set_zlabel(zlabel, rotation=0)
+        ax.set_zlabel(zlabel, rotation=zlabel_rotation)
         
     if xticks is not None :
         ax.set_xticks(xticks)
