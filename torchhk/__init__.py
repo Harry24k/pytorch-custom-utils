@@ -3,4 +3,4 @@ from .rm import *
 from .transform import *
 from .vis import __init__
 
-__version__ = 0.72
+__version__ = 0.74

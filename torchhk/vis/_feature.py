@@ -2,6 +2,7 @@ import math
 from collections.abc import Iterable
 
 import numpy as np
+import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
@@ -27,17 +28,22 @@ def _draw_colorbar(ca, cmap=None, colorbar_ticks=None):
 def _to_numpy(input) :
     if isinstance(input, np.ndarray) :
         return input
+    elif isinstance(input, pd.core.series.Series) :
+        return input.to_numpy()
+    elif isinstance(input, pd.core.frame.DataFrame) :
+        return input.to_numpy()
+    elif isinstance(input, torch.Tensor) :
+        return input.detach().cpu().numpy()
     else :
-        if isinstance(input, torch.Tensor) :
-            return input.detach().cpu().numpy()
-        else :
-            raise RuntimeError("Please input tensor or numpy array.")
+        return input
+#         raise RuntimeError("Please input tensor or numpy array.")
         
         
 def plot_scatter(ax, input, marker=None, marker_size=None, color=None, label=None,
                  alpha=None, edgecolor=None, linewidth=None, cmap=None, colorbar=False, colorbar_ticks=None) :
     kwargs = {'marker':marker, 's':marker_size, 'c':color, 'label':label, 'alpha':alpha, 
               'cmap':cmap, 'edgecolor':edgecolor, 'linewidth':linewidth}
+    input = _to_numpy(input)
     _del_none(kwargs)
     
     if cmap is not None :
@@ -55,12 +61,14 @@ def plot_line(ax, x, input, linewidth=None, linestyle=None,
     kwargs = {'linewidth':linewidth, 'linestyle':linestyle,
               'color':color, 'label':label, 'alpha':alpha, 'dashes':dashes,
               'marker':marker, 'markerfacecolor':markerfacecolor, 'markersize':markersize}
+    input = _to_numpy(input)
     _del_none(kwargs)
     ax.plot(x, input, **kwargs)
     
 def plot_hist(ax, input, color=None, label=None, alpha=None, bins=None, edgecolor=None):
     kwargs = {'color':color, 'label':label,
               'alpha':alpha, 'bins':bins, 'edgecolor':edgecolor}
+    input = _to_numpy(input)
     _del_none(kwargs)
     ax.hist(input, **kwargs)
     
@@ -68,7 +76,6 @@ def plot_hist(ax, input, color=None, label=None, alpha=None, bins=None, edgecolo
 def plot_dist(ax, input, kde=False, bins=None, stat=True, norm_hist=False):
     
     input = _to_numpy(input)
-    
     if stat :
         print("- Stats")
         print("Max : %f"%np.max(input))
