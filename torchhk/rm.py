@@ -87,14 +87,12 @@ class RecordManager(object) :
         for i, value in enumerate(values) :
             self.records[self._keys[i]].append(value)
             
-            if isinstance(value, str) :
-                text_arr.append("%s"%(value))
-            elif isinstance(value, int) :
+            if isinstance(value, int) :
                 text_arr.append("%d"%(value))
             elif isinstance(value, float) :
                 text_arr.append("%.4f"%(value))
             else :
-                text_arr.append(value)                
+                raise ValueError('Only int of float is supported for a record item.')     
             
         print(self._form.format(*text_arr))
         print("-"*self._text_len)

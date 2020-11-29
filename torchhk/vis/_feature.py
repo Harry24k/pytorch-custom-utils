@@ -29,9 +29,9 @@ def _to_numpy(input) :
     if isinstance(input, np.ndarray) :
         return input
     elif isinstance(input, pd.core.series.Series) :
-        return input.to_numpy()
+        return input.values
     elif isinstance(input, pd.core.frame.DataFrame) :
-        return input.to_numpy()
+        return input.values
     elif isinstance(input, torch.Tensor) :
         return input.detach().cpu().numpy()
     else :
