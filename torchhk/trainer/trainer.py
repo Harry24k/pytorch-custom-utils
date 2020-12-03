@@ -85,7 +85,8 @@ class Trainer():
             
             for i, train_data in enumerate(train_loader):
                 self.iter = i
-                iter_record = self._do_iter(*train_data)
+                iter_record = self._do_iter(train_data)
+                self.rm.progress()
                 
                 # Check Last Batch
                 is_last_batch = (i+1==self.max_iter)
@@ -100,7 +101,6 @@ class Trainer():
                         epoch_record = []
                 elif record_type == "Iter":
                     self._update_record([epoch+1, i+1, *iter_record])
-                    self.rm.progress()
                 else:
                     pass
 

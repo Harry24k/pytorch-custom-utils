@@ -22,7 +22,8 @@ class BaseTrainer(Trainer):
         self.record_keys = ["Loss", "Acc"]
     
     # Override Do Iter
-    def _do_iter(self, images, labels):
+    def _do_iter(self, train_data):
+        images, labels = train_data
         X = images.to(self.device)
         Y = labels.to(self.device)
 
