@@ -43,7 +43,7 @@ class Trainer():
         # Check Save Path is given
         if save_type is None:
             save_type = "None"
-        else :
+        else:
             # Check Save Path
             if save_path is not None:
                 # Save Initial Model
@@ -54,11 +54,11 @@ class Trainer():
        
         # Records check
         self._add_record_keys(self.record_keys)
-        if record_type == "Iter" :
+        if record_type == "Iter":
             self._add_record_keys(["Iter"])
             
         # Print Training Information
-        if record_type is not None :
+        if record_type is not None:
             self._init_record()
             print("["+self.name+"]")
             print("Training Information.")
@@ -76,11 +76,13 @@ class Trainer():
             epoch_record = []
             
             if epoch < start_epoch:
-                if self.scheduler_type == "Iter":
+                if self.scheduler_type == "Epoch":
+                    self._update_scheduler()
+                elif self.scheduler_type == "Iter":
                     for i in range(max_iter):
-                        self.scheduler.step()
+                        self._update_scheduler()
                 else:
-                    self.scheduler.step()
+                    pass
                 continue
             
             for i, train_data in enumerate(train_loader):
@@ -110,19 +112,23 @@ class Trainer():
                         self._save_model(save_path, epoch+1)
                 elif save_type == "Iter":
                     self._save_model(save_path, epoch+1, i+1)
-                else :
+                else:
                     pass
-                    
+                
+                # Scheduler Step
+                if self.scheduler_type=="Epoch" and is_last_batch:
+                    self._update_scheduler()
+                elif self.scheduler_type=="Iter":
+                    self._update_scheduler()
+                else:
+                    pass
+                
                 # Set Train Mode
                 self.model = self.model.to(self.device)
                 self.model.train()
                 
-                # Scheduler Step
-                if self._check_type(self.scheduler_type, is_last_batch):
-                    self.scheduler.step()
-                 
         # Print Summary
-        try :
+        try:
             if record_type is not None:
                 self.rm.summary()
         except Exception as e:
@@ -138,13 +144,25 @@ class Trainer():
         self.rm.to_csv(save_path+".csv")
         self.model.to(self.device)
     
+    #############################
+    # OVERRIDE BELOW FUNCTIONS #
+    ############################
+    
     # Do Iter
     def _do_iter(self, images, labels):
         raise NotImplementedError
         
+    # Scheduler Update
+    def _update_scheduler(self):
+        self.scheduler.step()
+        
+    ####################################
+    # DO NOT OVERRIDE BELOW FUNCTIONS #
+    ###################################
+     
     # Update Custom Record Keys
     def _add_record_keys(self, keys):
-        for i, key in enumerate(keys) :
+        for i, key in enumerate(keys):
             if key not in self._record_base_keys:
                 self._record_base_keys.insert(1+i, key)
         
@@ -161,16 +179,19 @@ class Trainer():
         # Set Optimizer
         if not isinstance(optimizer, str):
             self.optimizer = optimizer     
-        else :
+        else:
             exec("self.optimizer = " + optimizer.split("(")[0] + "(self.model.parameters()," + optimizer.split("(")[1])
 
         # Set Scheduler
         if not isinstance(scheduler, str):
             self.scheduler = scheduler
-            self.scheduler_type = scheduler_type
-            if self.scheduler_type is None :
-                raise ValueError("The type of scheduler must be specified as 'Epoch' or 'Iter'.")
-        else :
+            if self.scheduler is None:
+                self.scheduler_type = None
+            else:
+                if scheduler_type is None:
+                    raise ValueError("The type of scheduler must be specified as 'Epoch' or 'Iter'.")
+                self.scheduler_type = scheduler_type
+        else:
             if "Step(" in scheduler:
                 exec("self.scheduler = " + "MultiStepLR(self.optimizer, " + scheduler.split("(")[1])
                 self.scheduler_type = 'Epoch'
@@ -181,34 +202,28 @@ class Trainer():
                      ", step_size_up=lr_steps / 2, step_size_down=lr_steps / 2)")
                 self.scheduler_type = 'Iter'
 
-            elif 'Cosine' == scheduler :
+            elif 'Cosine' == scheduler:
                 self.scheduler = CosineAnnealingLR(self.optimizer, self.max_epoch, eta_min=0)
                 self.scheduler_type = 'Epoch'
                 
-            else :
+            else:
                 exec("self.scheduler = " + scheduler.split("(")[0] + "(self.optimizer, " + scheduler.split("(")[1])
                 self.scheduler_type = scheduler_type
-        
-    def _check_type(self, type, is_last_batch):
-        if type=="Epoch" and is_last_batch:
-            return True
-        elif type=="Iter":
-            return True
-        return False
             
     def _save_model(self, save_path, epoch, i=0):
         torch.save(self.model.cpu().state_dict(),
-                   save_path+"/"+str(epoch).zfill(len(str(self.max_epoch)))+"_"+str(i).zfill(len(str(self.max_iter)))+".pth")
+                   save_path+"/"+str(epoch).zfill(len(str(self.max_epoch)))\
+                   +"_"+str(i).zfill(len(str(self.max_iter)))+".pth")
         self.model.to(self.device)
         
     # Check and Create Path
     def _check_path(self, path, overwrite=False, file=False):
-        if os.path.exists(path) :
+        if os.path.exists(path):
             if overwrite:
                 print("Warning: Save files will be overwritten!")
             else:
                 raise ValueError('[%s] is already exists.'%(path))
-        else :
+        else:
             if not file:
                 os.makedirs(path)
                 

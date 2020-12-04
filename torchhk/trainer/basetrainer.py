@@ -40,3 +40,7 @@ class BaseTrainer(Trainer):
         cost = cost.item()
         
         return cost, 100*float(correct)/total
+    
+    # Override Update Scheduler
+    def _update_scheduler(self):
+        self.scheduler.step()
