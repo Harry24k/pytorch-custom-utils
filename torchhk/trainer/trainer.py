@@ -13,9 +13,6 @@ class Trainer():
         self.model = model
         self.device = next(model.parameters()).device
         
-        # Set Records
-        self._record_base_keys = ["Epoch", "lr"]
-        
         # Set Custom Arguments
         for k, v in kwargs.items():
 #             assert( k in [])
@@ -51,15 +48,10 @@ class Trainer():
                 self._save_model(save_path, 0)
             else:
                 raise ValueError("save_path should be given for save_type != None.")
-       
-        # Records check
-        self._add_record_keys(self.record_keys)
-        if record_type == "Iter":
-            self._add_record_keys(["Iter"])
             
         # Print Training Information
         if record_type is not None:
-            self._init_record()
+            self._init_record(record_type)
             print("["+self.name+"]")
             print("Training Information.")
             print("-Epochs:",self.max_epoch)
@@ -159,16 +151,18 @@ class Trainer():
     ####################################
     # DO NOT OVERRIDE BELOW FUNCTIONS #
     ###################################
-     
-    # Update Custom Record Keys
-    def _add_record_keys(self, keys):
-        for i, key in enumerate(keys):
-            if key not in self._record_base_keys:
-                self._record_base_keys.insert(1+i, key)
-        
+            
     # Initialization RecordManager
-    def _init_record(self):
-        self.rm = RecordManager(self._record_base_keys)
+    def _init_record(self, record_type):
+        keys = ["Epoch"]
+        if record_type == "Iter":
+            keys = ["Epoch", "Iter"]
+            
+        for key in self.record_keys:
+            keys.append(key)
+            
+        keys.append("lr")
+        self.rm = RecordManager(keys)
     
     # Update Records
     def _update_record(self, records):
@@ -193,16 +187,19 @@ class Trainer():
                 self.scheduler_type = scheduler_type
         else:
             if "Step(" in scheduler:
+                # Step(milestones=[2, 4], gamma=0.1)
                 exec("self.scheduler = " + "MultiStepLR(self.optimizer, " + scheduler.split("(")[1])
                 self.scheduler_type = 'Epoch'
 
             elif 'Cyclic(' in scheduler:
+                # Cyclic(base_lr=0, max_lr=0.3)
                 lr_steps = self.max_epoch * self.max_iter
                 exec("self.scheduler = " + "CyclicLR(self.optimizer, " + scheduler.split("(")[1].split(")")[0] + \
                      ", step_size_up=lr_steps / 2, step_size_down=lr_steps / 2)")
                 self.scheduler_type = 'Iter'
 
             elif 'Cosine' == scheduler:
+                # Cosine
                 self.scheduler = CosineAnnealingLR(self.optimizer, self.max_epoch, eta_min=0)
                 self.scheduler_type = 'Epoch'
                 
