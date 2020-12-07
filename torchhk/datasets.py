@@ -1,5 +1,4 @@
 import random
-from collections.abc import Iterable
 
 import torch
 from torch.utils.data import DataLoader, Subset
@@ -12,7 +11,7 @@ import torchvision.transforms as transforms
 
 class Datasets() :
     def __init__(self, data_name, root='./data',
-                 val_idx=None,
+                 val_info=None,
                  label_filter=None,
                  shuffle_train=True,
                  transform_train=transforms.ToTensor(), 
@@ -20,10 +19,10 @@ class Datasets() :
                  transform_val=transforms.ToTensor()) :
 
         self.shuffle_train = shuffle_train
-        self.val_idx = val_idx
+        self.val_info = val_info
         
         # TODO : Validation + Label filtering
-        if val_idx is not None :
+        if val_info is not None :
             if label_filter is not None :
                 raise ValueError("Validation + Label filtering is not supported yet.")
         
@@ -141,19 +140,26 @@ class Datasets() :
             
         self.data_name = data_name
             
-        if self.val_idx is not None:
-            if isinstance(self.val_idx, float):
-                if self.val_idx <= 0 or self.val_idx >= 1:
+        if self.val_info is not None:
+            max_len = len(self.train_data)
+            if isinstance(self.val_info, float):
+                if self.val_info <= 0 or self.val_info >= 1:
                     raise ValueError("The ratio of validation set must be in the range of (0, 1).")
                 else:
-                    max_len = len(self.train_data)
-                    self.val_len = int(max_len*self.val_idx)
-                self.val_idx = random.sample(range(0, max_len), self.val_len)
-            elif isinstance(self.val_idx, Iterable):
-                self.val_len = len(self.val_idx)
+                    self.val_len = int(max_len*self.val_info)
+                    self.val_idx = random.sample(range(0, max_len), self.val_len)
+            elif isinstance(self.val_info, int):
+                if self.val_info <= 0 or self.val_info >= max_len:
+                    raise ValueError("The number of validation set must be in the range of (0, len(train_data)).")
+                else:
+                    self.val_len = self.val_info
+                    self.val_idx = random.sample(range(0, max_len), self.val_len)
+            elif isinstance(self.val_info, list):
+                self.val_len = len(self.val_info)
+                self.val_idx = self.val_info
                 pass
             else:
-                raise ValueError("val_idx must be float or list.")
+                raise ValueError("val_info must be the one of [int, float or list].")
                 
             self.val_data = Subset(self.train_data, self.val_idx)            
             self.val_data.transform = transform_val            
@@ -210,14 +216,14 @@ class Datasets() :
             print("Test Data Length :", self.test_len)
         
     def get_len(self) :
-        if self.val_idx is None :
+        if self.val_info is None :
             return self.train_len, self.test_len
 
         else :
             return self.train_len, self.val_len, self.test_len
     
     def get_data(self) :
-        if self.val_idx is None :
+        if self.val_info is None :
             return self.train_data, self.test_data
 
         else :
@@ -225,7 +231,7 @@ class Datasets() :
     
     def get_loader(self, batch_size) :
         
-        if self.val_idx is None :
+        if self.val_info is None :
             self.train_loader = DataLoader(dataset=self.train_data,
                                            batch_size=batch_size,
                                            shuffle=self.shuffle_train,
