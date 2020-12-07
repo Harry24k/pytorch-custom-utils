@@ -4,4 +4,4 @@ from .transform import *
 from .vis import __init__
 from .trainer import __init__
 
-__version__ = '0.84.0'
+__version__ = '0.84.1'

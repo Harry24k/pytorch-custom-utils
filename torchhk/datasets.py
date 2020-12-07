@@ -1,3 +1,6 @@
+import random
+from collections.abc import Iterable
+
 import torch
 from torch.utils.data import DataLoader, Subset
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -138,7 +141,20 @@ class Datasets() :
             
         self.data_name = data_name
             
-        if self.val_idx is not None :
+        if self.val_idx is not None:
+            if isinstance(self.val_idx, float):
+                if self.val_idx <= 0 or self.val_idx >= 1:
+                    raise ValueError("The ratio of validation set must be in the range of (0, 1).")
+                else:
+                    max_len = len(self.train_data)
+                    self.val_len = int(max_len*self.val_idx)
+                self.val_idx = random.sample(range(0, max_len), self.val_len)
+            elif isinstance(self.val_idx, Iterable):
+                self.val_len = len(self.val_idx)
+                pass
+            else:
+                raise ValueError("val_idx must be float or list.")
+                
             self.val_data = Subset(self.train_data, self.val_idx)            
             self.val_data.transform = transform_val            
             
@@ -146,7 +162,7 @@ class Datasets() :
             
             self.train_data = Subset(self.train_data, train_idx)
             
-            self.val_len = len(self.val_idx)
+            
             self.train_len = len(self.train_data)
             self.test_len = len(self.test_data)
             
