@@ -42,9 +42,6 @@ Vis will help you to visualize torch tensors.
 - **Transform** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/Transform.ipynb)): 
 Transform will help you to change specific layers.
 
-- **Trainer** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/Trainer.ipynb)): 
-Trainer will help you to train a pytorch model.
-
 
 ## Contribution
 
