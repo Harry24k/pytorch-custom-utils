@@ -34,7 +34,7 @@ RecordManager will help you to keep tracking training records.
 
 - **Datasets** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/Datasets.ipynb), [markdown](https://github.com/Harry24k/pytorch-custom-utils/blob/master/docs/Datasets.md)): 
 Dataset will help you to use torch datasets including split and label-filtering.
-    > Supported datasets: CIFAR10, CIFAR100, STL10, MNIST, FashionMNIST, SVHN, MNISTM, ImageNet, USPS, TinyImageNet.
+    > Supported datasets: CIFAR10, CIFAR100, STL10, MNIST, FashionMNIST, SVHN, MNISTM, ImageNet, USPS, TinyImageNet, CIFAR with Unsupervised, Corrupted CIFAR.
 
 - **Vis** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/Vis.ipynb), [markdown](https://github.com/Harry24k/pytorch-custom-utils/blob/master/docs/Vis.md)): 
 Vis will help you to visualize torch tensors.
