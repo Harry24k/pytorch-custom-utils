@@ -86,11 +86,11 @@ def plot_dist(ax, input, kde=False, bins=None, stat=True, norm_hist=False):
     sns.distplot(input, kde=kde, bins=bins, norm_hist=norm_hist, ax=ax)
     
     
-def plot_img(ax, tensor, ncols=2, normalize=False, range=None, padding=2, pad_value=0) :
+def plot_img(ax, tensor, ncols=2, normalize=False, value_range=None, padding=2, pad_value=0) :
     # normalize (bool, optional) – If True, shift the image to the range (0, 1), by the min and max values specified by range. Default: False.
     # range (tuple, optional) – tuple (min, max) where min and max are numbers, then these numbers are used to normalize the image. By default, min and max are computed from the tensor.
     img = torchvision.utils.make_grid(tensor.detach().cpu(), nrow=ncols, padding=padding,
-                                      normalize=normalize, range=range, pad_value=pad_value)
+                                      normalize=normalize, value_range=value_range, pad_value=pad_value)
     npimg = img.numpy()
     ax.imshow(np.transpose(npimg,(1,2,0)))
     
