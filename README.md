@@ -34,7 +34,54 @@ RecordManager will help you to keep tracking training records.
 
 - **Datasets** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/Datasets.ipynb), [markdown](https://github.com/Harry24k/pytorch-custom-utils/blob/master/docs/Datasets.md)): 
 Dataset will help you to use torch datasets including split and label-filtering.
-    > Supported datasets: CIFAR10, CIFAR100, STL10, MNIST, FashionMNIST, SVHN, MNISTM, ImageNet, USPS, TinyImageNet, CIFAR with Unsupervised, Corrupted CIFAR.
+
+<details><summary>Supported datasets</summary><p>
+
+```python
+# CIFAR10
+datasets = Datasets("CIFAR10", root='./data')
+    
+# CIFAR100
+datasets = Datasets("CIFAR100", root='./data')
+    
+# STL10
+datasets = Datasets("STL10", root='./data')
+    
+# MNIST
+datasets = Datasets("MNIST", root='./data')
+    
+# FashionMNIST
+datasets = Datasets("FashionMNIST", root='./data')
+    
+# SVHN
+datasets = Datasets("SVHN", root='./data')
+    
+# MNISTM
+datasets = Datasets("MNISTM", root='./data')
+    
+# ImageNet
+datasets = Datasets("ImageNet", root='./data')
+    
+# USPS
+datasets = Datasets("USPS", root='./data')
+    
+# TinyImageNet
+datasets = Datasets("TinyImageNet", root='./data')
+    
+# CIFAR with Unsupervised
+datasets = Datasets("CIFAR10U", root='./data')
+datasets = Datasets("CIFAR100U", root='./data')
+    
+# Corrupted CIFAR (Only test data will be corrupted)
+# CORRUPTIONS = [
+#    'gaussian_noise', 'shot_noise', 'impulse_noise', 'defocus_blur',
+#    'glass_blur', 'motion_blur', 'zoom_blur', 'snow', 'frost', 'fog',
+#    'brightness', 'contrast', 'elastic_transform', 'pixelate',
+#    'jpeg_compression'
+#]
+datasets = Datasets("CIFAR10", root='./data',corruption='gaussian_noise')
+```
+</p></details>
 
 - **Vis** ([code](https://github.com/Harry24k/pytorch-custom-utils/blob/master/demo/Vis.ipynb), [markdown](https://github.com/Harry24k/pytorch-custom-utils/blob/master/docs/Vis.md)): 
 Vis will help you to visualize torch tensors.
