@@ -316,8 +316,7 @@ class Datasets() :
         if self.val_info is not None:
             self.val_loader = DataLoader(dataset=self.val_data,
                                          batch_size=batch_size,
-                                         shuffle=self.shuffle_val,
-                                         shuffle=False)
+                                         shuffle=self.shuffle_val)
             
             return self.train_loader, self.val_loader, self.test_loader  
 
