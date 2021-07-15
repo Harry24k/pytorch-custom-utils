@@ -19,6 +19,7 @@ class Datasets() :
                  val_info=None,
                  label_filter=None,
                  shuffle_train=True,
+                 shuffle_val=False,
                  transform_train=transforms.ToTensor(), 
                  transform_test=transforms.ToTensor(), 
                  transform_val=transforms.ToTensor(),
@@ -26,6 +27,7 @@ class Datasets() :
                 ):
 
         self.shuffle_train = shuffle_train
+        self.shuffle_val = shuffle_val
         self.val_info = val_info
         
         self.train_data_sup = None
@@ -312,9 +314,9 @@ class Datasets() :
                                       shuffle=False)
         
         if self.val_info is not None:
-
             self.val_loader = DataLoader(dataset=self.val_data,
                                          batch_size=batch_size,
+                                         shuffle=self.shuffle_val,
                                          shuffle=False)
             
             return self.train_loader, self.val_loader, self.test_loader  
