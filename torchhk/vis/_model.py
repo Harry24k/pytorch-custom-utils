@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 import torchvision.utils
 import plotly.graph_objects as go
+import plotly.express as px
 
 from mpl_toolkits import mplot3d
 from matplotlib.colors import LightSource
@@ -192,23 +193,40 @@ def cal_perturb(model, image, label, vec_x, vec_y, range_x, range_y,
 
 def plot_perturb_plotly(rx, ry, loss, predict,
                         z_by_loss=True, color_by_loss=False, color='viridis',
+                        discrete=False,
                         min_value=None, max_value=None,
                         title='Loss Visualization', width=600, height=600,
                         x_ratio=1, y_ratio=1, z_ratio=1) :
     
-    if z_by_loss :
+    if z_by_loss:
         zs = loss
     else :
         zs = predict
     
-    if color_by_loss :
+    if color_by_loss:
         colors = loss
     else :
         colors = predict
     
-    if min_value is None :
+    if descrete:
+        if color=='viridis':
+            cs = px.colors.qualitative.Pastel
+        else:
+            cs = color
+        idx = [0] + list((np.linspace(1, max_value, max_value) - 0.5)/max_value) + [1]
+        dcolor = []
+        for i, ix in enumerate(idx):
+            if ix == 0:
+                dcolor.append([ix, cs[i]])
+            elif ix == 1:
+                dcolor.append([ix, cs[i-1]])
+            else:
+                dcolor.append([ix, cs[i-1]])
+                dcolor.append([ix, cs[i]])  
+    
+    if min_value is None:
         min_value = int(colors.min())
-    if max_value is None :
+    if max_value is None:
         max_value = int(colors.max())
         
     fig = go.Figure(data=[go.Surface(z=zs, x=rx, y=ry, surfacecolor=colors, 
