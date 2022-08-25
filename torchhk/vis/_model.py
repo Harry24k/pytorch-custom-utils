@@ -1,4 +1,5 @@
 import math
+from copy import deepcopy
 
 import numpy as np
 import seaborn as sns
@@ -145,7 +146,7 @@ def plot_individual_weight(model, ncols=2, figsize=(5,5),
             ax.set_title(name)
             i += 1
         
-def cal_perturb(model, image, label, vec_x, vec_y, range_x, range_y, 
+def cal_perturb_x(model, image, label, vec_x, vec_y, range_x, range_y, 
                  grid_size=50, loss=nn.CrossEntropyLoss(reduction='none'),
                  batch_size=128, device=None):
     rx = np.linspace(*range_x, grid_size)
@@ -208,7 +209,7 @@ def plot_perturb_plotly(rx, ry, loss, predict,
     else :
         colors = predict
     
-    if descrete:
+    if discrete:
         if color=='viridis':
             cs = px.colors.qualitative.Pastel
         else:
@@ -223,6 +224,7 @@ def plot_perturb_plotly(rx, ry, loss, predict,
             else:
                 dcolor.append([ix, cs[i-1]])
                 dcolor.append([ix, cs[i]])  
+        color = dcolor
     
     if min_value is None:
         min_value = int(colors.min())
@@ -340,3 +342,43 @@ def plot_perturb_plt(rx, ry, loss, predict,
     ax.tick_params(axis='x', pad=tick_pad_x)
     ax.tick_params(axis='y', pad=tick_pad_y)
     ax.tick_params(axis='z', pad=tick_pad_z)
+
+
+def cal_perturb_w(model, images, labels, vec_x, vec_y, range_x, range_y, 
+                 grid_size=50, loss=nn.CrossEntropyLoss(reduction='none'),
+                 device=None):
+    rx = np.linspace(*range_x, grid_size)
+    ry = np.linspace(*range_y, grid_size)
+    
+    loss_list = []
+    pre_list = []
+    
+    if device is None :
+        device = next(model.parameters()).device
+    
+    images = images.to(device)
+    labels = labels.to(device)
+    state_dict = deepcopy(rmodel.state_dict())
+    
+    with torch.no_grad():
+        for j in ry :
+            for i in rx :
+                model.load_state_dict(state_dict)
+                for n, p in model.named_parameters():
+                    x = vec_x.get(n)
+                    if x:
+                        p.add_(i*x)
+                    y = vec_y.get(n)
+                    if y:
+                        p.add_(j*y)
+                
+                outputs = model(images)
+
+                _, pres = torch.max(outputs.data, 1)
+                pre_list.append(pres.data.cpu().numpy())
+                loss_list.append(loss(outputs, labels).data.cpu().numpy())
+        
+    pre_list = np.concatenate(pre_list).reshape(len(rx), len(ry), -1)
+    loss_list = np.concatenate(loss_list).reshape(len(rx), len(ry))
+    
+    return rx, ry, loss_list, pre_list
