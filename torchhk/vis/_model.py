@@ -358,27 +358,28 @@ def cal_perturb_w(model, images, labels, vec_x, vec_y, range_x, range_y,
     
     images = images.to(device)
     labels = labels.to(device)
-    state_dict = deepcopy(rmodel.state_dict())
+    model_p = deepcopy(model)
+    state_dict = model.state_dict()
     
     with torch.no_grad():
         for j in ry :
             for i in rx :
-                model.load_state_dict(state_dict)
-                for n, p in model.named_parameters():
+                model_p.load_state_dict(state_dict)
+                for n, p in model_p.named_parameters():
                     x = vec_x.get(n)
-                    if x:
+                    if x is not None:
                         p.add_(i*x)
                     y = vec_y.get(n)
-                    if y:
+                    if y is not None:
                         p.add_(j*y)
                 
-                outputs = model(images)
+                outputs = model_p(images)
 
                 _, pres = torch.max(outputs.data, 1)
                 pre_list.append(pres.data.cpu().numpy())
                 loss_list.append(loss(outputs, labels).data.cpu().numpy())
         
     pre_list = np.concatenate(pre_list).reshape(len(rx), len(ry), -1)
-    loss_list = np.concatenate(loss_list).reshape(len(rx), len(ry))
+    loss_list = np.concatenate(loss_list).reshape(len(rx), len(ry), -1)
     
     return rx, ry, loss_list, pre_list
