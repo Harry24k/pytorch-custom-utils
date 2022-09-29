@@ -55,7 +55,7 @@ def plot_scatter(ax, input, marker=None, marker_size=None, color=None, label=Non
     if colorbar :
         _draw_colorbar(ca, cmap, colorbar_ticks)
     
-def plot_line(ax, x, input, linewidth=None, linestyle=None,
+def plot_line(ax, input, x=None, linewidth=None, linestyle=None,
               color=None, label=None, alpha=None, dashes=None,
               marker=None, markerfacecolor=None, markersize=None) :
     kwargs = {'linewidth':linewidth, 'linestyle':linestyle,
@@ -63,6 +63,10 @@ def plot_line(ax, x, input, linewidth=None, linestyle=None,
               'marker':marker, 'markerfacecolor':markerfacecolor, 'markersize':markersize}
     input = _to_numpy(input)
     _del_none(kwargs)
+
+    if x is None:
+        x = list(range(len(input)+1))[1:]
+
     ax.plot(x, input, **kwargs)
     
 def plot_hist(ax, input, color=None, label=None, alpha=None, bins=None, edgecolor=None):
