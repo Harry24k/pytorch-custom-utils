@@ -77,8 +77,7 @@ def plot_hist(ax, input, color=None, label=None, alpha=None, bins=None, edgecolo
     ax.hist(input, **kwargs)
     
     
-def plot_dist(ax, input, kde=False, bins=None, stat=True, norm_hist=False):
-    
+def plot_dist(ax, input, color=None, kde=False, bins=None, stat=True, norm_hist=False):
     input = _to_numpy(input)
     if stat :
         print("- Stats")
@@ -87,7 +86,7 @@ def plot_dist(ax, input, kde=False, bins=None, stat=True, norm_hist=False):
         print("Mean : %f"%np.mean(input))
         print("Median : %f"%np.median(input))
     
-    sns.distplot(input, kde=kde, bins=bins, norm_hist=norm_hist, ax=ax)
+    sns.distplot(input, kde=kde, bins=bins, norm_hist=norm_hist, ax=ax, color=color)
     
     
 def plot_img(ax, tensor, ncols=2, normalize=False, value_range=None, padding=2, pad_value=0) :
